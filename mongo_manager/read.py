@@ -2,7 +2,7 @@ from datetime import datetime
 import polygon
 import pymongo
 
-from config import mongo_config
+from mongo_manager.read_config_file import mongo_config
 
 mongo_client = pymongo.MongoClient(mongo_config["mongo_connection_string"])
 mongo_db = mongo_client[mongo_config["mongo_db_name"]]
