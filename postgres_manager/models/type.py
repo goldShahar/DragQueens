@@ -20,3 +20,6 @@ def delete_type(type_name: str):
 
 def read_type(type_name: str | None, Importance: int | None, Min_time: datetime | None, Min_area: float | None, selected_columns: list[bool]):
     return read_type_from_pg({"type_name": type_name, "Importance": Importance, "Min_time": Min_time, "Min_area": Min_area}, selected_columns)
+
+
+

@@ -30,6 +30,7 @@ def read_type_from_pg(filter_values: dict[str, any], selected_columns: list[bool
 
 
 
+
     
 def delete_record(pk, table, pk_column):
     try:
