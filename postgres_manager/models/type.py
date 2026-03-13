@@ -1,6 +1,9 @@
 from datetime import datetime
 from pydantic import BaseModel
 
+from postgres_manager.sql_models.type_model import create_type_in_pg, delete_type_in_pg, read_type_from_pg
+
+
 class Type(BaseModel):
     type_name: str
     Importance: int 
