@@ -18,15 +18,26 @@ def delete_type_in_pg(type_name1: str):
     delete_record(type_name1, Type, Type.type_name)
 
 
-def read_type_from_pg(filter_values: dict[str, any], selected_columns: list[bool]):
+def read_type_from_pg(filter_values: dict[str, str], selected_columns: list[bool]):
     try:
         with Session(engine) as session:
-            stmt = select(Type.c(get_selected_columns(selected_columns, Type))).where()
+            stmt = select(*get_selected_columns(selected_columns, Type)).where(*get_where_conditions(filter_values))
             return session.execute(stmt).fetchall()
             
     except Exception as e:
         return f"Error reading type: {str(e)}"
-
+    
+def get_where_conditions(filter_values: dict[str, str]) -> list:
+    conditions = []
+    if filter_values["type_name"]:
+        conditions.append(Type.type_name == filter_values["type_name"])
+    if filter_values["importance"]:
+        conditions.append(get_correct_cond(int, Type.importance, filter_values["importance"]))
+    if filter_values["Min_time"]:
+        conditions.append(get_correct_cond(int, Type.Min_time, filter_values["Min_time"]))
+    if filter_values["Min_area"]:
+        conditions.append(get_correct_cond(int, Type.Min_area, filter_values["Min_area"]))   
+    return conditions 
 
 
 
@@ -44,18 +55,26 @@ def delete_record(pk, table, pk_column):
                 return "Record not found"
     except Exception as e:
         return f"Error deleting record: {str(e)}"
+    
+    
 
 
 def get_selected_columns(selected_columns: list[bool], table) -> list[str]:
     table_columns = table.__table__.columns.keys()
-    return [table_columns[i] for i in range(len(table_columns)) if selected_columns[i]]
+    return [getattr(table, table_columns[i]) for i in range(len(table_columns)) if selected_columns[i]]
 
-def get_columns_to_filter(filtered_columns: list[str], table) -> list[str]:
-    table_columns = table.__table__.columns.keys()
+
+def get_correct_cond(obj_type, field, cond: str):
+    if cond.startswith(">="):
+        return field >= obj_type(cond[2:])
+    if cond.startswith("<="):
+        return field <= obj_type(cond[2:])
+    if cond.startswith(">"):
+        return field > obj_type(cond[1:])
+    if cond.startswith("<"):
+        return field < obj_type(cond[1:])
+    return field == obj_type(cond)
+
     
-    return [table.col for col in table_columns if selected_columns[i]]
 
 
-
-
-        
