@@ -9,3 +9,4 @@ class Hazard(BaseModel):
     end_time: datetime.datetime
     people_ids: list[str]
     buildings_ids: list[str]
+    
