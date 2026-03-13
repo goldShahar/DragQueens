@@ -28,14 +28,11 @@ def read_type_from_pg(filter_values: dict[str, any], selected_columns: list[bool
         return f"Error reading type: {str(e)}"
 
 
-
-
-
     
 def delete_record(pk, table, pk_column):
     try:
         with Session(engine) as session:
-            record_to_delete = session.query(table).filter(pk_column == pk).first()
+            record_to_delete = session.query(table).filter(pk_column == pk).all()
             if record_to_delete:
                 session.delete(record_to_delete)
                 session.commit()

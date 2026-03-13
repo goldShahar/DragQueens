@@ -1,5 +1,4 @@
 import datetime
-
 from geoalchemy2 import Geometry, WKBElement
 from sqlalchemy.orm import mapped_column, Mapped, DeclarativeBase
 from sqlalchemy import ARRAY, String, create_engine

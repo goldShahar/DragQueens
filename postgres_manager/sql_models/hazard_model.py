@@ -1,4 +1,54 @@
-# hazard funcs 
+from datetime import datetime
+from sqlalchemy import func, select
+from sqlalchemy.orm import Session
+from geoalchemy2.shape import from_shape
+from postgres_manager.models.hazard import Hazard_Model
+from postgres_manager.sql_models.type_model import delete_record
+from .__init__ import Hazard, engine
+import base64
 
-def create():
-    pass
+
+def create_hazard_in_pg(hazard: Hazard_Model):
+    try:
+        with Session(engine) as session:
+            inserted_hazard = Hazard(type_name=hazard.type_name, id= base64.b64encode(hazard.type_name) + "-" + hazard.id
+                                     , geo_polygon=func.ST_GeomFromText(hazard.geo_polygon) , start_time=hazard.start_time
+                                     , end_time=hazard.end_time, people_ids=hazard.people_ids, buildings_ids=hazard.buildings_ids)
+            session.add(inserted_hazard)
+            session.commit()
+            return "Hazard created successfully"
+    except Exception as e:
+        return f"Error creating Hazard: {str(e)}"
+
+
+def delete_hazard_in_pg_by_type_name(id: str, type_name: str):
+    id_with_prefix = base64.b64encode(type_name) + "-" + id
+    return delete_record(id_with_prefix, Hazard, Hazard.id)
+
+def delete_record_by_id(id: str):  ####### NOT GOOD
+    return delete_record(id, Hazard, Hazard.id)
+
+
+
+#def customize_by_schema():
+
+
+
+def get_all_intersects(polygon: str):
+    try:
+        session = Session(engine)
+        polygon_geo = func.ST_GeomFromText(polygon)
+        """query = select(Hazard.type_name, Hazard.id, Hazard.geo_polygon, Hazard.start_time
+                         , Hazard.end_time, Hazard.people_ids, Hazard.buildings_ids).where(func.ST_Intersects(Hazard.geo_polygon, polygon_geo))"""
+        query = select(Hazard).where(func.ST_Intersects(Hazard.geo_polygon, polygon_geo))#.add_columns(func.ST_AsText(Hazard.geo_polygon).label("geo_polygon"))
+        
+        results = session.scalar(query)
+        session.close()
+        return results
+    except Exception as e:
+        return f"Error with Polygon validation: {str(e)}"
+
+
+create_hazard_in_pg(Hazard_Model("fire", "1234","POLYGON ((80.9642815883114 7.716872281778215, 80.96427825807906 7.716862738631399, 80.96426282803327 7.716838775038134, 80.96423544677383 7.716800621780884, 80.9641963779972 7.716748646296402, 80.96414599795709 7.716683349137007, 80.9640847918408 7.716605359150044, 80.96401334909672 7.716515427421719, 80.96393235775749 7.716414420043726, 80.96384259781401 7.716303309772364, 80.9637449337036 7.716183166660251, 80.96364030598502 7.716055147751256, 80.96352972228041 7.715920485937438, 80.96341424757128 7.715780478085684, 80.96329499394223 7.715636472548134, 80.96317310987087 7.715489856176866, 80.96304976916744 7.715342040967634, 80.96292615967036 7.715194450461759, 80.96280347180664 7.71504850603646, 80.9626828871275 7.7149056132163665, 80.96256556692927 7.714767148137405, 80.96245264106963 7.714634444293999, 80.96234519708634 7.714508779696722, 80.96224426972368 7.714391364564328, 80.96215083096735 7.71428332966871, 80.96206578068359 7.714185715444991, 80.9619899379532 7.714099461971493, 80.9619240331831 7.714025399916331, 80.96186870107225 7.713964242537578, 80.96182447449914 7.713916578814228, 80.96179177938981 7.713882867773968, 80.9617709306161 7.713863434072572, 80.96176212896304 7.713858464867208, 80.96176545919539 7.713868008014025, 80.96178088924117 7.713891971607303, 80.96180827050063 7.7139301248645396, 80.96184733927724 7.713982100349035, 80.96189771931736 7.714047397508416, 80.96195892543363 7.714125387495379, 80.96203036817774 7.714215319223705, 80.96211135951697 7.714316326601697, 80.96220111946045 7.714427436873059, 80.96229878357084 7.714547579985172, 80.96240341128942 7.714675598894182, 80.96251399499403 7.714810260707999, 80.96262946970317 7.714950268559754, 80.96274872333223 7.715094274097289, 80.96287060740357 7.715240890468557, 80.962993948107 7.715388705677789, 80.9631175576041 7.715536296183664, 80.9632402454678 7.715682240608963, 80.96336083014697 7.715825133429071, 80.96347815034517 7.715963598508019, 80.9635910762048 7.716096302351424, 80.9636985201881 7.7162219669487015, 80.96379944755077 7.716339382081095, 80.96389288630712 7.716447416976713, 80.96397793659085 7.716545031200447, 80.96405377932123 7.71663128467393, 80.96411968409134 7.716705346729093, 80.96417501620219 7.716766504107845, 80.96421924277531 7.71681416783121, 80.96425193788463 7.716847878871455, 80.96427278665834 7.716867312572852, 80.9642815883114 7.716872281778215))",
+                                 datetime.now(), datetime.now(), ["1", "2"], ["3", "4"]
+))
