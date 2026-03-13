@@ -1,5 +1,5 @@
 .venv
-config.txt
-test.py
 __pycache__
+mongo_config.json
+test.py
 docker-compose.yml
