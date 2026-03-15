@@ -1,7 +1,7 @@
 import redis
-from config import HOST, PORT, EXP
+from config import HOST, REDIS_PORT, EXP
 
-POOL =  redis.ConnectionPool(host=HOST, port=PORT, decode_responses=True)
+POOL =  redis.ConnectionPool(host=HOST, port=REDIS_PORT, decode_responses=True)
 
 def read(key: str):
     my_server = redis.Redis(connection_pool=POOL)
