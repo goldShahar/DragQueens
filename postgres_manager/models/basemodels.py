@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime
 from shapely import Polygon
 from shapely.wkt import loads
 from pydantic import BaseModel, field_validator
@@ -8,8 +8,8 @@ class Hazard_Model(BaseModel):
     type_name: str
     id: str
     geo_polygon: str
-    start_time: datetime.datetime
-    end_time: datetime.datetime
+    start_time: datetime
+    end_time: datetime
     people_ids: list[str]
     buildings_ids: list[str]
 
@@ -23,10 +23,8 @@ class Hazard_Model(BaseModel):
         except Exception as e:
             raise ValueError(f'Invalid WKT: {e}')
 
-
-def create_hazard(hazard: Hazard_Model):
-    return create_hazard_in_pg(hazard)
-
-def delete_hazard(id: str):
-    return delete_hazard_in_pg(id: )
-    
+class Type_Model(BaseModel):
+    type_name: str
+    Importance: int 
+    Min_time: datetime 
+    Min_area: float
