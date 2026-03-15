@@ -23,7 +23,7 @@ class Type(Base):
     __tablename__ = "Types"
     type_name: Mapped[str] = mapped_column(primary_key=True)
     importance: Mapped[int] = mapped_column()
-    Min_time: Mapped[datetime.datetime] = mapped_column(DateTime)
+    Min_time: Mapped[int] = mapped_column()
     Min_area: Mapped[float] = mapped_column()
 
 
