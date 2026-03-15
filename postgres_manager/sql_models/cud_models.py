@@ -37,5 +37,7 @@ def get_correct_cond(obj_type, field, cond: str):
 def convert_to_correct_type(value: str, obj_Type):
     if obj_Type == datetime:
         return datetime.strptime(value, f"%Y-%m-%dT%H:%M:%S")
+    elif obj_Type == list:
+        return value
     else:
         return obj_Type(value)

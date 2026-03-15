@@ -1,79 +1,86 @@
+from datetime import datetime
+
 from postgres_manager.sql_models.columns.table_column import TableColumn
 from postgres_manager.sql_models import Hazard
-from postgres_manager.models.funcs import read_type
-from sqlalchemy import Sequence, func
-
+import postgres_manager.models.crud as crud
+from sqlalchemy import Row, Sequence, func
+from geoalchemy2 import functions
+from postgres_manager.sql_models.columns.type_columns import TypeNameColumn
 from postgres_manager.sql_models.cud_models import get_correct_cond
 
-class HazardTypeNameColumn(TableColumn):
-    field_in_table = Hazard.type_name
 
+
+
+
+class HazardTypeNameColumn(TableColumn):
     def read_value(cls, value_to_filter: list[str]):
-        return cls.field_in_table in value_to_filter
+        return lambda: Hazard.type_name.in_(value_to_filter)
     
+    def read_by_schema(hazard: dict):
+        return hazard.get("type_name")
+
 
 class IdColumn(TableColumn):
-    field_in_table = Hazard.id
-
     def read_value(cls, value_to_filter: list[str]):
-        return "-".join(cls.field_in_table.split("-")[1:]) in value_to_filter
+        return lambda: "-".join(Hazard.id.split("-")[1:]).in_(value_to_filter)
+    
+    def read_by_schema(hazard: dict):
+        return "-".join(hazard.get("id").split("-")[1:])
         
 
 class GeoPolygonColumn(TableColumn):
-    field_in_table = Hazard.geo_polygon
-
     def read_value(cls, value_to_filter):
-        return func.ST_Intersects(cls.field_in_table, func.ST_GeomFromText(value_to_filter, 4326))
+        return lambda: func.ST_Intersects(Hazard.geo_polygon, func.ST_GeomFromText(value_to_filter, 4326))
+    
+    def read_by_schema(hazard: dict):
+        return functions.ST_AsText(hazard.get("geo_polygon"), 4326)
 
 
 class StartTimeColumn(TableColumn):
-    field_in_table = Hazard.start_time
-
     def read_value(cls, value_to_filter):
-        return get_correct_cond(type(cls.field_in_table), cls.field_in_table, value_to_filter)
+        return get_correct_cond(datetime, Hazard.start_time, value_to_filter)
+    
+    def read_by_schema(hazard: dict):
+        return hazard.get("start_time")
     
 
 class EndTimeColumn(TableColumn):
-    field_in_table = Hazard.end_time
-
     def read_value(cls, value_to_filter):
-        return get_correct_cond(type(cls.field_in_table), cls.field_in_table, value_to_filter)
+        return get_correct_cond(datetime, Hazard.end_time, value_to_filter)
+    
+    def read_by_schema(hazard: dict):
+        return hazard.get("end_time")
 
 
 class PeopleIdsColumn(TableColumn):
-    field_in_table = Hazard.people_ids
-
     def read_value(cls, value_to_filter):
         if isinstance(value_to_filter, list):
-            return any(cls.field_in_table.contains(value) for value in value_to_filter)
+            return any(Hazard.people_ids.contains(value) for value in value_to_filter)
         elif isinstance(value_to_filter, str):
-            return get_correct_cond(type(cls.field_in_table), len(cls.field_in_table), value_to_filter)
+            return get_correct_cond(list, len(Hazard.people_ids), value_to_filter)
+    
+    def read_by_schema(hazard: dict):
+        return len(hazard.get("people_ids"))
 
 
 class BuildingsIdsColumn(TableColumn):
-    field_in_table = Hazard.buildings_ids
-
     def read_value(cls, value_to_filter):
         if isinstance(value_to_filter, list):
-            return any(cls.field_in_table.contains(value) for value in value_to_filter)
+            return any(Hazard.buildings_ids.contains(value) for value in value_to_filter)
         elif isinstance(value_to_filter, str):
-            return get_correct_cond(type(cls.field_in_table), len(cls.field_in_table), value_to_filter)
-        
+            return get_correct_cond(list, len(Hazard.buildings_ids), value_to_filter)
+    
+    def read_by_schema(hazard: dict):
+        return len(hazard.get("buildings_ids"))
+
+
 
 class Duration(TableColumn):
-    field_in_table = func.extract('epoch', Hazard.end_time - Hazard.start_time)
-
     def read_value(cls, value_to_filter):
-        return get_correct_cond(type(cls.field_in_table), cls.field_in_table, value_to_filter)
+        return get_correct_cond(type(func.extract('epoch', Hazard.end_time - Hazard.start_time)), func.extract('epoch', Hazard.end_time - Hazard.start_time), value_to_filter)
     
 
 class Importance(TableColumn):
-    field_in_table = Hazard.type_name
-
     def read_value(cls, value_to_filter):
-        seq: Sequence = HazardTypeNameColumn.read_value(read_type(Importance=value_to_filter, selected_columns=[True, False, False, False]))
+        seq: Sequence = TypeNameColumn.read_value(crud.read_type(Importance=value_to_filter, selected_columns=[True, False, False, False]))
         return HazardTypeNameColumn.read_value(seq)
-
-
-
-

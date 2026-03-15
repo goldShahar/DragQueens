@@ -56,5 +56,5 @@ def get_where_conditions(filter_values: dict[str, str]) -> list:
     
 
 
-print(create_type_in_pg("fire", "8", "2025-09-20T02:33:12", 12.5))
+#print(create_type_in_pg("fire", "8", "3", 12.5))
     
