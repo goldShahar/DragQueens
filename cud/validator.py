@@ -2,7 +2,7 @@ from config import  SUCCESS, FAILURE
 from redili_manager.my_redis import delete_key, read
 
 def insert_type_validation(hazard_type: dict):
-    if 1 < hazard_type["importance"] < 100 and hazard_type['min_area'] > 0:
+    if 1 < hazard_type["importance"] < 100 and hazard_type['min_area'] > 0 and hazard_type['min_time'] > 0:
         return SUCCESS
     return FAILURE
 
