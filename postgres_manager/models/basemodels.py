@@ -26,5 +26,5 @@ class Hazard_Model(BaseModel):
 class Type_Model(BaseModel):
     type_name: str
     Importance: int 
-    Min_time: datetime 
+    Min_time: int 
     Min_area: float

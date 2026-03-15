@@ -6,7 +6,7 @@ from . import Type, engine
 
 
 
-def create_type_in_pg(type_name: str, Importance: int, Min_time: datetime, Min_area: float):
+def create_type_in_pg(type_name: str, Importance: int, Min_time: int, Min_area: float):
     try:
         with Session(engine) as session:
             inserted_type = Type(type_name=type_name, importance=Importance, Min_time=Min_time, Min_area=Min_area)
