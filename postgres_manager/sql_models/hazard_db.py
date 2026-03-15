@@ -1,3 +1,4 @@
+from abc import ABC
 from datetime import datetime
 from sqlalchemy import Sequence, select, func
 from sqlalchemy.orm import Session
@@ -102,7 +103,10 @@ def get_where_conditions(filter_values: dict[str, str]) -> list:
 
 #def check_correct_condition_for_list()
 
-
+class bbb(ABC):
+    d = "s"
+    def i():
+        
 
 # CHECKING -------------------------------------------------------------------------------------------------------
 
