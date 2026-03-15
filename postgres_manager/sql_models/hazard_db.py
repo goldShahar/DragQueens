@@ -1,11 +1,24 @@
 from datetime import datetime
-from sqlalchemy import Sequence, select, func
+from sqlalchemy import Sequence, select
 from sqlalchemy.orm import Session
-from geoalchemy2.shape import from_shape
+from geoalchemy2 import functions
 from postgres_manager.models.basemodels import Hazard_Model
-from postgres_manager.sql_models.cud_models import delete_record, get_correct_cond, get_selected_columns
+from postgres_manager.sql_models.columns.hazard_columns import *
+from postgres_manager.sql_models.cud_models import get_selected_columns
 from . import Hazard, engine
 import base64
+
+
+class hazard_table_singleton:
+    instance = None
+    columns_dict: dict[str, TableColumn] = {"type_name": HazardTypeNameColumn, "id": IdColumn, 
+                    "geo_polygon": GeoPolygonColumn, "start_time": StartTimeColumn,
+                    "end_time": EndTimeColumn, "people_ids": PeopleIdsColumn, "buildings_ids": BuildingsIdsColumn}
+
+    def __new__(cls):
+        if cls.instance is None:
+            cls.instance = super().__new__(cls)
+        return cls.instance
 
 
 def create_hazard_in_pg(hazard: Hazard_Model):
@@ -34,57 +47,31 @@ def delete_record_by_id(id: str):  ####### NOT GOOD
 
 
 
-def customize_by_schema(results: Sequence[Hazard]):
+def customize_by_schema(results: Sequence[Hazard]): #TODO
     for hazard in results:        
-        hazard.geo_polygon = func.ST_AsText(Hazard.geo_polygon, 4326)
+        hazard.geo_polygon = functions.ST_AsText(Hazard.geo_polygon, 4326)
         hazard.id = "-".join(hazard.id.split("-")[1:])
     return results
 
 
 def read_Hazard_from_pg(filter_values: dict[str, str], selected_columns: list[bool]):
-    """try:
+    try:
         with Session(engine) as session:
-            print("filter values: " + filter_values)
-            print("------------------------------------------------")
             stmt = select(*get_selected_columns(selected_columns, Hazard)).where(*get_where_conditions(filter_values))
-            print(stmt)
-            print("------------------------------------------------")
             results = session.execute(stmt).fetchall()
-            return customize_by_schema(results)
+            return results
             
     except Exception as e:
-        return f"Error reading Hazard: {str(e)}"""
-    with Session(engine) as session:
-            # print("filter values: " + str(filter_values))
-            # print("------------------------------------------------")
-            stmt = select(*get_selected_columns(selected_columns, Hazard)).where(*get_where_conditions(filter_values))
-            # print(stmt)
-            # print("------------------------------------------------")
-            results = session.execute(stmt).fetchall()
-            return customize_by_schema(results)
+        return f"Error reading Hazard: {str(e)}"
     
     
 def get_where_conditions(filter_values: dict[str, str]) -> list:
     conditions = []
-    if filter_values.get("type_name"):
-        conditions.append(Hazard.type_name == filter_values["type_name"])
-    if filter_values.get("id"):
-        conditions.append(Hazard.id.contains(filter_values["id"]))
-    if filter_values.get("geo_polygon"):
-        conditions.append(func.ST_Intersects(Hazard.geo_polygon, func.ST_GeomFromText(filter_values["geo_polygon"], 4326)))
-    if filter_values.get("start_time"):
-        conditions.append(get_correct_cond(datetime, Hazard.start_time, filter_values["start_time"])) 
-    if filter_values.get("end_time"):
-        conditions.append(get_correct_cond(datetime, Hazard.end_time, filter_values["end_time"]))   
-    if filter_values.get("people_ids"):
-        conditions.append(get_correct_cond(list, Hazard.people_ids, filter_values["people_ids"]))
-    if filter_values.get("buildings_ids"):
-        conditions.append(get_correct_cond(int, Hazard.buildings_ids, filter_values["buildings_ids"]))    
-    return conditions 
-
-
-#def check_correct_condition_for_list()
-
+    for field_name in filter_values:
+        if filter_values[field_name] is not None:
+            column_class = hazard_table_singleton().columns_dict.get(field_name).read_value(filter_values[field_name])
+            conditions.append(column_class)    
+    return conditions
 
 
 # CHECKING -------------------------------------------------------------------------------------------------------

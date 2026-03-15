@@ -1,10 +1,20 @@
 from datetime import datetime
 from sqlalchemy import select
 from sqlalchemy.orm import Session
+from postgres_manager.sql_models.columns.table_column import TableColumn
+from postgres_manager.sql_models.columns.type_columns import *
 from postgres_manager.sql_models.cud_models import delete_record, get_correct_cond, get_selected_columns
 from . import Type, engine
 
 
+class type_table_singleton:
+    instance = None
+    columns_dict: dict[str, TableColumn] = {"type_name": TypeNameColumn, "importance": ImportanceColumn, "Min_time": MinTimeColumn, "Min_area": MinAreaColumn}
+
+    def __new__(cls):
+        if cls.instance is None:
+            cls.instance = super().__new__(cls)
+        return cls.instance
 
 def create_type_in_pg(type_name: str, Importance: int, Min_time: int, Min_area: float):
     try:
@@ -34,15 +44,11 @@ def read_type_from_pg(filter_values: dict[str, str], selected_columns: list[bool
 
 def get_where_conditions(filter_values: dict[str, str]) -> list:
     conditions = []
-    if filter_values.get("type_name"):
-        conditions.append(Type.type_name == filter_values["type_name"])
-    if filter_values.get("importance"):
-        conditions.append(get_correct_cond(int, Type.importance, filter_values["importance"]))
-    if filter_values.get("Min_time"):
-        conditions.append(get_correct_cond(int, Type.Min_time, filter_values["Min_time"]))
-    if filter_values.get("Min_area"):
-        conditions.append(get_correct_cond(int, Type.Min_area, filter_values["Min_area"]))   
-    return conditions 
+    for field_name in filter_values:
+        if filter_values[field_name] is not None:
+            column_class = type_table_singleton().columns_dict.get(field_name).read_value(filter_values[field_name])
+            conditions.append(column_class)    
+    return conditions
 
 
 
