@@ -1,6 +1,5 @@
 import redis
-from config import HOST, REDIS_PORT, EXP
-from exceptions import KeyNotFound
+from config import HOST, REDIS_PORT, EXP, SUCCESS, FAILURE
 
 POOL =  redis.ConnectionPool(host=HOST, port=REDIS_PORT, decode_responses=True)
 
@@ -17,5 +16,6 @@ def delete_key(key: str):
     my_server = redis.Redis(connection_pool=POOL)
     if my_server.get(key):
         my_server.delete(key)
+        return SUCCESS
     else:
-        raise KeyNotFound
+        return FAILURE
