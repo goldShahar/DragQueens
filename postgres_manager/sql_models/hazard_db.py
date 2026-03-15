@@ -1,10 +1,11 @@
+from abc import ABC
 from datetime import datetime
 from sqlalchemy import Sequence, select
 from sqlalchemy.orm import Session
 from geoalchemy2 import functions
 from postgres_manager.models.basemodels import Hazard_Model
 from postgres_manager.sql_models.columns.hazard_columns import *
-from postgres_manager.sql_models.cud_models import get_selected_columns
+from postgres_manager.sql_models.cud_models import delete_record, get_selected_columns
 from . import Hazard, engine
 import base64
 
@@ -72,7 +73,7 @@ def get_where_conditions(filter_values: dict[str, str]) -> list:
             column_class = hazard_table_singleton().columns_dict.get(field_name).read_value(filter_values[field_name])
             conditions.append(column_class)    
     return conditions
-
+        
 
 # CHECKING -------------------------------------------------------------------------------------------------------
 
