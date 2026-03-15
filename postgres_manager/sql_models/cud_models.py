@@ -24,9 +24,6 @@ def get_selected_columns(selected_columns: list[bool], table) -> list[str]:
 
 
 def get_correct_cond(obj_type, field, cond: str):
-    print(field)
-    print(obj_type)
-    print(cond[1:])
     if cond.startswith(">="):
         return field >= convert_to_correct_type(cond[2:], obj_type)
     if cond.startswith("<="):
