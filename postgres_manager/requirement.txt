@@ -1,0 +1,5 @@
+pydantic
+geoalchemy2
+sqlalchemy
+sqlalchemy.orm
+psycopg2
