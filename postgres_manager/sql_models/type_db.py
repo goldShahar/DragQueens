@@ -32,13 +32,16 @@ def delete_type_in_pg(type_name1: str):
 
 
 def read_type_from_pg(filter_values: dict[str, str], selected_columns: list[bool]):
-    try:
-        with Session(engine) as session:
+    # try:
+        # with Session(engine) as session:
+        #     stmt = select(*get_selected_columns(selected_columns, Type)).where(*get_where_conditions(filter_values))
+        #     return session.execute(stmt).fetchall()
+            
+    # except Exception as e:
+    #     return f"Error reading type: {str(e)}"
+            with Session(engine) as session:
             stmt = select(*get_selected_columns(selected_columns, Type)).where(*get_where_conditions(filter_values))
             return session.execute(stmt).fetchall()
-            
-    except Exception as e:
-        return f"Error reading type: {str(e)}"
 
 
 def get_where_conditions(filter_values: dict[str, str]) -> list:
@@ -55,5 +58,5 @@ def get_where_conditions(filter_values: dict[str, str]) -> list:
     
 
 
-#print(create_type_in_pg("fire", "8", "3", 12.5))
+print(read_type_from_pg({"type_name": "fire3"}, [True, True, False, False]))
     
