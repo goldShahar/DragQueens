@@ -1,5 +1,5 @@
-from routers import hazard, type
-from config import HOST, PORT
+from http_writer_api.routers import hazard, type
+from config import HTTP_HOST, HTTP_PORT
 from fastapi import FastAPI
 import uvicorn
 
@@ -7,7 +7,7 @@ app = FastAPI()
 
 
 def start_server():
-    uvicorn.run(app, host=HOST, port=PORT)
+    uvicorn.run(app, host=HTTP_HOST, port=HTTP_PORT)
 
 
 def include_routers():

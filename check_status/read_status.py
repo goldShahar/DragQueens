@@ -1,5 +1,5 @@
 from observer.observer import get_message_by_id
-from config import HOST, PORT
+from check_status.config import HOST, PORT
 from fastapi import FastAPI
 import uvicorn
 
