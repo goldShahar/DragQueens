@@ -39,8 +39,10 @@ def read_type_from_pg(filter_values: dict[str, str], selected_columns: list[bool
             
     # except Exception as e:
     #     return f"Error reading type: {str(e)}"
-            with Session(engine) as session:
+        with Session(engine) as session:    
+            
             stmt = select(*get_selected_columns(selected_columns, Type)).where(*get_where_conditions(filter_values))
+            
             return session.execute(stmt).fetchall()
 
 
@@ -48,15 +50,15 @@ def get_where_conditions(filter_values: dict[str, str]) -> list:
     conditions = []
     for field_name in filter_values:
         if filter_values[field_name] is not None:
-            column_class = type_table_singleton().columns_dict.get(field_name).read_value(filter_values[field_name])
-            conditions.append(column_class)    
+            column_class = type_table_singleton().columns_dict.get(field_name).read_value(cls=type_table_singleton()
+                                                                                            .columns_dict.get(field_name), value_to_filter=filter_values[field_name])
+            conditions.append(column_class)
     return conditions
-
 
 
 
     
 
-
-print(read_type_from_pg({"type_name": "fire3"}, [True, True, False, False]))
+# print(create_type_in_pg("fire2", 3, 10, 100.0))
+# print(read_type_from_pg({"type_name": "fire2"}, [True, True, False, False]))
     
