@@ -2,11 +2,11 @@ from typing import Any
 
 
 def welcome_func(action: str, table: str, valuses: dict[str, Any]):
-    if action == "read":
+    if action == "READ":
         return ""
-    if action == "write":
+    if action == "WRITE":
         return ""
-    if action == "delete":
+    if action == "DELETE":
         return ""
 
     else:
