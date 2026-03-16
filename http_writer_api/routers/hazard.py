@@ -17,7 +17,7 @@ def create_hazard(
 ):
     return final_func(
         {
-            "type": hazerd_type,
+            "type_name": hazerd_type,
             "id": hazerd_id,
             "goe_polygon": goe_polygon,
             "start_time": start_time,

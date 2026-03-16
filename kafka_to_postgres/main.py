@@ -4,18 +4,19 @@ from kafkush.producers import producer
 from config import TOPIC1
 
 
-def write_topic1_to_postgress_func():
-    status = consumer.read_from_kafka(TOPIC1)
+def write_topic1_to_postgress_func(consumer_main):
+    status = consumer.read_from_kafka(consumer_main, TOPIC1)
     answer = welcome_func(status["ACTION"], status["TABLE"], status["VALUSES"])
-    write_postgress_to_topic1_func(answer)
+    write_postgress_to_topic1_func(answer, status["id_msg"])
 
 
-def write_postgress_to_topic1_func(answer):
-    producer.send_to_kafka(answer, TOPIC1)
+def write_postgress_to_topic1_func(answer: str, id_msg: str):
+    producer.send_to_kafka({"status": answer, "id_msg": id_msg}, TOPIC1)
 
 
-while True:
+while KeyboardInterrupt:
+    consumer_main = consumer.create_consumer(consumer.consumer_config_main)
     try:
-        write_postgress_to_topic1_func()
+        write_topic1_to_postgress_func(consumer_main)
     except:
         continue

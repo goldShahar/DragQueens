@@ -8,8 +8,10 @@ POOL = redis.ConnectionPool(host=HOST, port=REDIS_PORT, decode_responses=True)
 
 def read(key: str):
     my_server = redis.Redis(connection_pool=POOL)
-    response = json.loads(my_server.get(key))
-    return response
+    value = my_server.get(key)
+    if value:
+        return json.loads(value)
+    return value
 
 
 def write(key: str, value: Any):

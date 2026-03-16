@@ -1,25 +1,31 @@
 from confluent_kafka import Consumer
 import json
 
-consumer_config = {
+consumer_config_main = {
     "bootstrap.servers": "localhost:9092",
-    "group.id": "kafka-consumer",
+    "group.id": "consumer-main",
+    "auto.offset.reset": "earliest",
+}
+consumer_config_cache = {
+    "bootstrap.servers": "localhost:9092",
+    "group.id": "consumer-cache",
     "auto.offset.reset": "earliest",
 }
 
-consumer = Consumer(consumer_config)
+
+def create_consumer(consumer):
+    return Consumer(consumer)
 
 
-def read_from_kafka(topic: str):
+def read_from_kafka(consumer: Consumer, topic: str):
     consumer.subscribe([topic])
     print(f"Consumer is running and subscribed to {topic} topic")
 
     msg = consumer.poll()
-    if msg.error():
-        consumer.close()
-        return msg.error
+    while msg.error():
+        msg = consumer.consume()
 
     value = msg.value().decode("utf-8")
-    print(value)
+    print("val", value)
     consumer.close()
     return json.loads(value)
