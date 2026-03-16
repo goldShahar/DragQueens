@@ -7,8 +7,8 @@ from sqlalchemy import Row, Sequence, func
 from geoalchemy2 import functions
 from postgres_manager.sql_models.columns.type_columns import TypeNameColumn
 from postgres_manager.sql_models.cud_models import get_correct_cond
-
-
+from shapely import wkb
+from geoalchemy2.functions import ST_AsText
 
 
 
@@ -33,7 +33,7 @@ class GeoPolygonColumn(TableColumn):
         return lambda: func.ST_Intersects(Hazard.geo_polygon, func.ST_GeomFromText(value_to_filter, 4326))
     
     def read_by_schema(hazard: dict):
-        return functions.ST_AsText(hazard.get("geo_polygon"), 4326)
+        return ST_AsText(hazard.get("geo_polygon"))
 
 
 class StartTimeColumn(TableColumn):

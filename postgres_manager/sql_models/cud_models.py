@@ -18,7 +18,7 @@ def delete_record(pk, table, pk_column):
         return f"Error deleting record: {str(e)}"
     
 
-def get_selected_columns(selected_columns: list[bool], table) -> list[str]:
+def get_selected_columns(selected_columns: list[bool], table) -> list:
     table_columns = table.__table__.columns.keys()
     return [getattr(table, table_columns[i]) for i in range(len(table_columns)) if selected_columns[i]]
 
