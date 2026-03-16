@@ -32,7 +32,9 @@ class IdColumn(TableColumn):
 class GeoPolygonColumn(TableColumn):
     def read_value(cls, value_to_filter):
         wkt = WKTElement(value_to_filter, srid=4326)
-        return lambda: func.ST_Intersects(Hazard.geo_polygon, wkt)
+        obj = from_shape(to_shape(Hazard.geo_polygon).intersection(to_shape(wkt)).area)
+        return lambda: obj > 0
+        # return lambda: func.ST_Intersects(Hazard.geo_polygon, wkt)
     
     def read_by_schema(hazard: dict):
         return to_wkt(to_shape(hazard.get("geo_polygon")))
