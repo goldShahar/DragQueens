@@ -4,10 +4,11 @@ from postgres_manager.sql_models.columns.table_column import TableColumn
 from postgres_manager.sql_models import Hazard
 import postgres_manager.models.crud as crud
 from sqlalchemy import Row, Sequence, func
-from geoalchemy2 import functions
+from geoalchemy2.shape import to_shape
+from geoalchemy2.elements import WKTElement
 from postgres_manager.sql_models.columns.type_columns import TypeNameColumn
 from postgres_manager.sql_models.cud_models import get_correct_cond
-from shapely import wkb
+from shapely import to_wkt
 from geoalchemy2.functions import ST_AsText
 
 
@@ -30,10 +31,11 @@ class IdColumn(TableColumn):
 
 class GeoPolygonColumn(TableColumn):
     def read_value(cls, value_to_filter):
-        return lambda: func.ST_Intersects(Hazard.geo_polygon, func.ST_GeomFromText(value_to_filter, 4326))
+        wkt = WKTElement(value_to_filter, 4326)
+        return lambda: func.ST_Intersects(Hazard.geo_polygon, wkt)
     
     def read_by_schema(hazard: dict):
-        return ST_AsText(hazard.get("geo_polygon"))
+        return to_wkt(hazard.get("geo_polygon"))
 
 
 class StartTimeColumn(TableColumn):

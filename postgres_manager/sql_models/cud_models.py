@@ -3,6 +3,7 @@ from datetime import datetime
 from sqlalchemy.orm import Session
 from .__init__ import engine
 
+
 def delete_record(pk, table, pk_column):
     try:
         with Session(engine) as session:
