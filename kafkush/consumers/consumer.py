@@ -22,9 +22,9 @@ def read_from_kafka(consumer: Consumer, topic: str):
     print(f"Consumer is running and subscribed to {topic} topic")
 
     msg = consumer.poll()
-    while msg.error():
-        msg = consumer.consume()
-
+    if msg.error():
+        print(msg.error())
+        return msg.error()
     value = msg.value().decode("utf-8")
     print("val", value)
     consumer.close()

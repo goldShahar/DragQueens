@@ -11,11 +11,9 @@ def create_type(type_name: str, importance: int, min_time: float, min_area: floa
     return final_func(
         {
             "type_name": type_name,
-            "conditions": {
-                "importance": importance,
-                "min_time": min_time,
-                "min_area": min_area,
-            },
+            "Importance": importance,
+            "Min_time": min_time,
+            "Min_area": min_area,
         },
         INSERT,
         TYPE,

@@ -4,9 +4,9 @@ from redili_manager.my_redis import delete_key, read
 
 def insert_type_validation(hazard_type: dict):
     if (
-        1 < hazard_type["conditions"]["importance"] < 100
-        and hazard_type["conditions"]["min_area"] > 0
-        and hazard_type["conditions"]["min_time"] > 0
+        0 < hazard_type["Importance"] < 101
+        and hazard_type["Min_area"] > 0
+        and hazard_type["Min_time"] > 0
     ):
         return SUCCESS
     return FAILURE
@@ -28,8 +28,8 @@ def existing_type_validator(hazard: dict):
 
 
 def check_valid_hazrad(conditions: dict, hazard: dict):
-    if conditions["min_time"] <= hazard["min_time"]:
+    if conditions["Min_time"] <= hazard["Min_time"]:
         return FAILURE
-    if conditions["min_area"] <= hazard["min_area"]:
+    if conditions["Min_area"] <= hazard["Min_area"]:
         return FAILURE
     return SUCCESS

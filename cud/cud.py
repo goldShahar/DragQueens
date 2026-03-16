@@ -13,7 +13,10 @@ def insert_type(hazard_type: dict):
     if insert_type_validation(hazard_type):
         write(
             hazard_type["type_name"],
-            {"id_msg": hazard_type["id_msg"], "conditions": hazard_type["conditions"]},
+            {
+                k: hazard_type[k]
+                for k in set(list(hazard_type.keys())) - set(["type_name"])
+            },
         )
         send_to_kafka(hazard_type, TOPIC1)
         return hazard_type["id_msg"]

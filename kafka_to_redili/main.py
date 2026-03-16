@@ -10,6 +10,7 @@ def write_topic1_to_redili_func(consumer_cache):
 
 def write_topic2_to_redili_func(consumer_cache):
     status = consumer.read_from_kafka(consumer_cache, TOPIC2)
+    print("status", status)
     write(
         status["id_msg"],
         status["status"],
