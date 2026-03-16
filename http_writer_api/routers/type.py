@@ -7,13 +7,15 @@ router = APIRouter(prefix="/type")
 
 
 @router.get("/create")
-def create_type(hazerd_type: str, importance: int, min_time: float, min_area: float):
-    final_func(
+def create_type(type_name: str, importance: int, min_time: float, min_area: float):
+    return final_func(
         {
-            "type": hazerd_type,
-            "importance": importance,
-            "min_time": min_time,
-            "min_area": min_area,
+            "type_name": type_name,
+            "conditions": {
+                "importance": importance,
+                "min_time": min_time,
+                "min_area": min_area,
+            },
         },
         INSERT,
         TYPE,
@@ -21,9 +23,9 @@ def create_type(hazerd_type: str, importance: int, min_time: float, min_area: fl
 
 
 @router.get("/delete")
-def delete_type(hazerd_type: str):
-    final_func(
-        {"type": hazerd_type},
+def delete_type(type_name: str):
+    return final_func(
+        {"type_name": type_name},
         DELETE,
         TYPE,
     )

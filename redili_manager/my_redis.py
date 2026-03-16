@@ -1,16 +1,21 @@
 import redis
+import json
 from config import HOST, REDIS_PORT, EXP, SUCCESS, FAILURE
+from typing import Any
 
-POOL =  redis.ConnectionPool(host=HOST, port=REDIS_PORT, decode_responses=True)
+POOL = redis.ConnectionPool(host=HOST, port=REDIS_PORT, decode_responses=True)
+
 
 def read(key: str):
     my_server = redis.Redis(connection_pool=POOL)
-    response = my_server.get(key)
+    response = json.loads(my_server.get(key))
     return response
 
-def write(key: str, value: any):
+
+def write(key: str, value: Any):
     my_server = redis.Redis(connection_pool=POOL)
-    my_server.set(key, value,ex=EXP)
+    my_server.set(key, json.dumps(value), ex=EXP)
+
 
 def delete_key(key: str):
     my_server = redis.Redis(connection_pool=POOL)
