@@ -3,7 +3,7 @@ import binascii
 from datetime import datetime
 from sqlalchemy import Sequence, select
 from sqlalchemy.orm import Session
-from geoalchemy2.shape import to_shape
+from geoalchemy2.shape import from_shape, to_shape
 from geoalchemy2.elements import WKBElement, WKTElement
 from postgres_manager.models.basemodels import Hazard_Model
 from postgres_manager.sql_models.columns.hazard_columns import *
@@ -30,7 +30,7 @@ def create_hazard_in_pg(hazard: Hazard_Model):
         with Session(engine) as session:
             inserted_hazard = Hazard(type_name=hazard.type_name
                                      , id=base64.b64encode(hazard.type_name.encode("ascii")).decode("ascii") + "-" + hazard.id
-                                     , geo_polygon=to_shape(WKTElement(hazard.geo_polygon, srid=4326)),
+                                     , geo_polygon=from_shape(WKTElement(hazard.geo_polygon, srid=4326)),
                                      start_time=hazard.start_time
                                      , end_time=hazard.end_time, people_ids=hazard.people_ids,
                                      buildings_ids=hazard.buildings_ids)
@@ -72,15 +72,15 @@ def customize_by_schema(results: Sequence[Row], selected_columns: list[str]):
 
 
 def read_Hazard_from_pg(filter_values: dict[str, str], selected_columns: list[bool]):
-    """try:
-        with Session(engine) as session:
-            selected = get_selected_columns(selected_columns, Hazard)
-            stmt = select(*selected).where(*get_where_conditions(filter_values))
-            results = session.execute(stmt).fetchall()
-            return customize_by_schema(results, [selected_column.key for selected_column in selected])
+    # try:
+    #     with Session(engine) as session:
+    #         selected = get_selected_columns(selected_columns, Hazard)
+    #         stmt = select(*selected).where(*get_where_conditions(filter_values))
+    #         results = session.execute(stmt).fetchall()
+    #         return customize_by_schema(results, [selected_column.key for selected_column in selected])
             
-    except Exception as e:
-        return f"Error reading Hazard: {str(e)}" """
+    # except Exception as e:
+    #     return f"Error reading Hazard: {str(e)}"
     with Session(engine) as session:
             selected = get_selected_columns(selected_columns, Hazard)
             stmt = select(*selected).where(*get_where_conditions(filter_values))
@@ -128,10 +128,9 @@ poly = 'POLYGON ((81.02307368371551 6.735324711856805, 81.02307641798092 6.73532
     print(result.geo_polygon)
     print("***")"""
 # print(func.ST_AsText("0103000020E61000000100000041000000353D0B0A7A415440607615F6F8F01A405C2283157A41544000EB6354F8F01A400A57C31D7A41544080543E5CF7F01A40C583B7227A415440007C0810F6F01A40F87153247A415440706BF572F4F01A400C2A93227A4154409089FF88F2F01A4038FD7A1D7A415440D0CBDE56F0F01A40D07A17157A415440C013FDE1EDF01A405A517D097A41544070D66830EBF01A40841BC9FA79415440102EC648E8F01A40AE191FE979415440407A3E32E5F01A407CD8AAD47941544020B86EF4E1F01A407EC59EBD7941544020BD5497DEF01A40DFB233A47941544040833B23DBF01A40494BA8887941544030B7A6A0D7F01A406877406B7941544030BA3D18D4F01A407FB6444C79415440804CB692D0F01A40A66B012C79415440D013BF18CDF01A407F21C60A79415440C033EAB2C9F01A4014C6E4E878415440902C9869C6F01A40DDE0B0C6784154404033E344C3F01A40CFC47EA478415440C0388B4CC0F01A4078C0A28278415440F0CDE287BDF01A40264E706178415440A016BDFDBAF01A40164639417841544090F55CB4B8F01A40AF144D2278415440209D65B1B6F01A40ACF6F70478415440D0A8CCF9B4F01A402E3D82E977415440A0E3CD91B3F01A40709B2FD07741544090D7E07CB2F01A40D97F3EB977415440B041B0BDB1F01A40177AE7A477415440207F1356B1F01A40A8AF5C937741544050020A47B1F01A403E60C9847741544010DEB890B1F01A40177B51797741544070696A32B2F01A406A461171774154401000902AB3F01A40AF191D6C7741544070D8C576B4F01A407C2B816A7741544010E9D813B6F01A406773416C77415440E0CACEFDB7F01A403CA0597177415440B088EF2FBAF01A40A422BD7977415440C040D1A4BCF01A401A4C578577415440107E6556BFF01A40F0810B94774154406026083EC2F01A40C683B5A57741544030DA8F54C5F01A40F8C429BA77415440609C5F92C8F01A40F6D735D177415440609779EFCBF01A4094EAA0EA7741544030D19263CFF01A402A522C0678415440409D27E6D2F01A400B26942378415440509A906ED6F01A40F6E68F4278415440000818F4D9F01A40CD31D36278415440B0400F6EDDF01A40F47B0E8478415440B020E4D3E0F01A4060D7EFA578415440E027361DE4F01A4097BC23C8784154404021EB41E7F01A40A5D855EA78415440C01B433AEAF01A40FBDC310C794154408086EBFEECF01A404E4F642D79415440D03D1189EFF01A405D579B4D79415440F05E71D2F1F01A40C588876C7941544060B768D5F3F01A40C8A6DC8979415440B0AB018DF5F01A40456052A579415440D07000F5F6F01A400402A5BE79415440F07CED09F8F01A409B1D96D579415440C0121EC9F8F01A405D23EDE97941544070D5BA30F9F01A40CBED77FB794154402052C43FF9F01A40353D0B0A7A415440607615F6F8F01A40"))
-#results = read_Hazard_from_pg({"type_name": ["fire"], "geo_polygon": poly, 'start_time': '>2024-09-08T19:11:02'}, [1,1,1,0,1,0,1])
-#print(results)
+results = read_Hazard_from_pg({"type_name": ["fire"], "geo_polygon": poly, 'start_time': '>2024-09-08T19:11:02'}, [1,1,1,0,1,0,1])
+print(results)
 
 
 #print(to_wkt(to_shape(WKTElement('POLYGON ((-1 2, 0 3, 1 2, 0 1, -1 2))', srid=4326))))
-hex_string = "01030000000100000005000000000000000000f0bf000000000000004000000000000000000000000000000840000000000000f03f00000000000000400000000000000000000000000000f03f00000000000000f0bf0000000000000040"
-print(to_wkt(to_shape(WKBElement(binascii.unhexlify(hex_string)))))
+

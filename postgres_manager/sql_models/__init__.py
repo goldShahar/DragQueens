@@ -1,8 +1,9 @@
 import datetime
 from geoalchemy2 import Geometry, WKBElement
 from sqlalchemy.orm import mapped_column, Mapped, DeclarativeBase
-from sqlalchemy import ARRAY, String, create_engine
+from sqlalchemy import ARRAY, String, create_engine, func
 from sqlalchemy import MetaData, DateTime
+from sqlalchemy.types import TypeDecorator
 postgres_con_url = "postgresql://{}:{}@{}/{}"
 
 
@@ -18,6 +19,19 @@ metadata = MetaData()
 
 class Base(DeclarativeBase):
     pass
+
+
+class TransformGeometry(TypeDecorator):
+    impl = Geometry
+
+    def __init__(self):
+        super().__init__(geometry_type="POLYGON", srid=4326)
+        self.srid = 4326
+        self.geometry_type = "POLYGON"
+
+    def column_expression(self, column):
+        return getattr(func, self.impl.asbinary)
+
 
 class Type(Base):
     __tablename__ = "Types"
