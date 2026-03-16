@@ -6,7 +6,14 @@ from config import TOPIC1
 
 def write_topic1_to_postgress_func(consumer_main):
     status = consumer.read_from_kafka(consumer_main, TOPIC1)
-    answer = welcome_func(status["ACTION"], status["TABLE"], status["VALUSES"])
+    answer = welcome_func(
+        status["ACTION"],
+        status["TABLE"],
+        {
+            k: status[k]
+            for k in set(list(status.keys())) - set(["ACTION", "TABLE", "id_msg"])
+        },
+    )
     write_postgress_to_topic1_func(answer, status["id_msg"])
 
 
