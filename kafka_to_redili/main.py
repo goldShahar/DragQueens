@@ -1,5 +1,5 @@
 from kafkush.consumers import consumer
-from redili_manager.my_redis import write
+from redili_manager.my_redis import write, delete_key
 from config import TOPIC1, TOPIC2
 
 
@@ -11,6 +11,7 @@ def write_topic1_to_redili_func(consumer_cache):
 def write_topic2_to_redili_func(consumer_cache):
     status = consumer.read_from_kafka(consumer_cache, TOPIC2)
     print("status", status)
+    delete_key(status["id_msg"])
     write(
         status["id_msg"],
         status["status"],
